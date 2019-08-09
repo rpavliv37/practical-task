@@ -11,11 +11,12 @@ function getTicketsEpic($action) {
     .map(action => action.payload)
     .switchMap(() => {
       return Observable.fromPromise(
-        axios.get('ttp://localhost:8080/static/tickets.json')
+        axios.get('http://localhost:8080/static/tickets.json')
       ).catch(handleError);
     })
-    .do(result => result && result.data && saveTickets(result.data))
-    .ignoreElements();
+    .map(result =>
+      result && result.data ? saveTickets(result.data) : { type: "a" }
+    );
 }
 
 function getExchangeRateEpic($action) {
@@ -24,13 +25,12 @@ function getExchangeRateEpic($action) {
     .map(action => action.payload)
     .switchMap(() => {
       return Observable.fromPromise(
-        axios.get(
-          'https://api.exchangeratesapi.io/latest?base=RUB&symbols=USD,EUR,RUB'
-        )
+        axios.get('https://api.exchangeratesapi.io/latest?base=RUB&symbols=USD,EUR,RUB')
       ).catch(handleError);
     })
-    .do(result => result && result.data && saveExchangeRate(result.data))
-    .ignoreElements();
+    .map(result =>
+      result && result.data ? saveExchangeRate(result.data) : { type: "a" }
+    );
 }
 
 export default combineEpics(getTicketsEpic, getExchangeRateEpic);
